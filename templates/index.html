@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>QR Scanner</title>
+    <style>
+        #video-container, #qr-result {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        #qr-result {
+            display: none;
+        }
+        img {
+            border: 2px solid black;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="video-container">
+        <h2>Scanning QR Code...</h2>
+        <img id="video-stream" src="{{ url_for('video_feed') }}">
+    </div>
+
+    <div id="qr-result">
+        <h2>QR Code Detected!</h2>
+        <img id="qr-frame" src="{{ url_for('video_feed') }}">
+        <p id="qr-text"></p>
+    </div>
+
+    <script>
+        async function checkQR() {
+            let response = await fetch("/qr_text");
+            let text = await response.text();
+
+            if (text.trim() !== "") {
+                document.getElementById("video-container").style.display = "none";
+                document.getElementById("qr-result").style.display = "block";
+                document.getElementById("qr-text").innerText = "Decoded: " + text;
+            } else {
+                setTimeout(checkQR, 1000); // check every second
+            }
+        }
+
+        checkQR();
+    </script>
+</body>
+</html>
